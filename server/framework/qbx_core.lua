@@ -33,11 +33,7 @@ AddEventHandler("QBCore:Server:OnJobUpdate", function(source, jobData)
 end)
 
 AddEventHandler('QBCore:Server:OnPlayerUnload', function(source)
-    local officer = officers.get(source)
-
-    if officer then
-        officers.remove(source)
-    end
+    officers.remove(source)
 end)
 
 local qbx = {}
