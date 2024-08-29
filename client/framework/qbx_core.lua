@@ -19,7 +19,7 @@ function qb.notify(text, type)
 end
 
 function qb.isJobPolice()
-    return QBX.PlayerData.job.type == 'leo' and true or false
+    return QBX.PlayerData.job.name == 'police' and true or false
 end
 
 function qb.isOnDuty()

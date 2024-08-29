@@ -189,7 +189,7 @@ RegisterNetEvent(framework.logoutEvent, function()
 end)
 
 RegisterNetEvent(framework.setGroupEvent, function()
-    framework.getOfficerData()
+    player = framework.getOfficerData()
 
     if not framework.isJobPolice() then
         closeMdt(true)

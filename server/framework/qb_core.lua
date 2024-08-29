@@ -5,7 +5,7 @@ local function addOfficer(playerId)
     if officers.get(playerId) then return end
 
     local player = QBCore.Functions.GetPlayer(playerId)
-    if player and player.PlayerData.job.type == 'leo' then
+    if player and player.PlayerData.job.name == 'police' then
         officers.add(playerId, player.PlayerData.charinfo.firstname, player.PlayerData.charinfo.lastname, player.PlayerData.citizenid)
         MySQL.prepare.await('INSERT INTO `mdt_profiles` (`citizenid`, `image`, `notes`, `lastActive`) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE `lastActive` = NOW()', { player.PlayerData.citizenid, nil, nil })
     end
@@ -70,8 +70,8 @@ function qb.getAnnouncements()
     local result = {}
     for i = 1, #announcements do
         local charinfo = json.decode(announcements[i].charinfo)
-        table.insert(result, { 
-            id = announcements[i].id, 
+        table.insert(result, {
+            id = announcements[i].id,
             contents = announcements[i].contents,
             citizenid = announcements[i].citizenid,
             firstname = charinfo.firstname,
@@ -204,7 +204,7 @@ function qb.isProfileWanted(citizenid)
     local response = MySQL.rawExecute.await('SELECT * FROM `mdt_warrants` WHERE `citizenid` = ?', {
         citizenid
     })
-    
+
     return response[1] and true or false
 end
 
@@ -221,7 +221,7 @@ end
 
 function qb.getLicenses(citizenid)
     local player = QBCore.Functions.GetPlayerByCitizenId(citizenid)
-    if not player then 
+    if not player then
         local result = MySQL.rawExecute.await([[
         SELECT
             metadata
@@ -231,7 +231,7 @@ function qb.getLicenses(citizenid)
             citizenid = ?
         ]], { citizenid })?[1]
         local metadata = json.decode(result.metadata)
-    
+
         return metadata.licences
     end
 
@@ -287,7 +287,7 @@ function qb.getOfficersInvolved(parameters)
             players.citizenid = officer.citizenid
         LEFT JOIN
             mdt_profiles profile
-        ON 
+        ON
             players.citizenid = profile.citizenid
         WHERE
             incidentid = ?
@@ -322,7 +322,7 @@ function qb.getOfficersInvolvedReport(parameters)
             players.citizenid = officer.citizenid
         LEFT JOIN
             mdt_profiles profile
-        ON 
+        ON
             players.citizenid = profile.citizenid
         WHERE
             reportid = ?
@@ -356,7 +356,7 @@ function qb.getCitizensInvolvedReport(parameters)
             players.citizenid = officer.citizenid
         LEFT JOIN
             mdt_profiles profile
-        ON 
+        ON
             players.citizenid = profile.citizenid
         WHERE
             reportid = ?
@@ -503,7 +503,7 @@ function qb.fetchRoster()
     for _, v in pairs(queryResult) do
         local charinfo = json.decode(v.charinfo)
         local jobInfo = json.decode(v.job)
-        
+
         rosterOfficers[#rosterOfficers+1] = {
             citizenid = v.citizenid,
             firstname = charinfo.firstname,
@@ -519,7 +519,7 @@ function qb.fetchRoster()
             lastActive = v.formatted_lastActive
         }
     end
-    
+
     return rosterOfficers
 end
 
@@ -597,7 +597,7 @@ end
 
 function qb.hireOfficer(data)
     local player
-    
+
     if QBCore.Functions.GetPlayerByCitizenId(data.citizenid) then
         player = QBCore.Functions.GetPlayerByCitizenId(data.citizenid)
     else
@@ -627,7 +627,7 @@ end
 
 function qb.setOfficerRank(data)
     local player
-    
+
     if QBCore.Functions.GetPlayerByCitizenId(data.citizenId) then
         player = QBCore.Functions.GetPlayerByCitizenId(data.citizenId)
     else

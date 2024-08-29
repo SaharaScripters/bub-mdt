@@ -4,7 +4,7 @@ local function addOfficer(playerId)
     if officers.get(playerId) then return end
 
     local player = exports.qbx_core:GetPlayer(playerId)
-    if player and player.PlayerData.job.type == 'leo' then
+    if player and player.PlayerData.job.name == 'police' then
         officers.add(playerId, player.PlayerData.charinfo.firstname, player.PlayerData.charinfo.lastname, player.PlayerData.citizenid)
         MySQL.prepare.await('INSERT INTO `mdt_profiles` (`citizenid`, `image`, `notes`, `lastActive`) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE `lastActive` = NOW()', { player.PlayerData.citizenid, nil, nil })
     end
