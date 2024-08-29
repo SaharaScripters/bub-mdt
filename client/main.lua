@@ -404,10 +404,9 @@ serverNuiCallback('getAllVehicles', function(data, cb)
     for i = 1, #data do
         vehicles[#vehicles+1] = {
             plate = data[i].plate,
-            model = VEHICLES[data[i].vehicle].model,
+            model = VEHICLES[data[i].model].model,
         }
     end
-
     cb(vehicles)
 end)
 

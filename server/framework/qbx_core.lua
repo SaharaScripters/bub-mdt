@@ -203,19 +203,16 @@ function qbx.isProfileWanted(citizenid)
     local response = MySQL.rawExecute.await('SELECT * FROM `mdt_warrants` WHERE `citizenid` = ?', {
         citizenid
     })
-    
     return response[1] and true or false
 end
 
 function qbx.getVehiclesForProfile(parameters)
     local sharedVehicles = exports.qbx_core:GetVehiclesByName()
-    local vehicles = MySQL.rawExecute.await('SELECT `plate`, `vehicle` FROM `player_vehicles` WHERE `citizenid` = ?', parameters) or {}
-
+    local vehicles = MySQL.rawExecute.await('SELECT `plate`, `model` FROM `player_vehicles` WHERE `citizenid` = ?', parameters) or {}
     for _, v in pairs(vehicles) do
-        v.label = sharedVehicles[v.vehicle]?.name or v.vehicle
+        v.label = sharedVehicles[v.model]?.name or v.model
         v.vehicle = nil
     end
-
     return vehicles
 end
 
@@ -560,7 +557,7 @@ end
 local selectVehicles = [[
     SELECT
         plate,
-        vehicle
+        model
     FROM
         player_vehicles
 ]]
@@ -573,8 +570,8 @@ local selectVehicle = [[
     SELECT
         player_vehicles.citizenid,
         player_vehicles.plate,
-        player_vehicles.vehicle,
-        player_vehicles.mods,
+        player_vehicles.model,
+        player_vehicles.props,
         mdt_vehicles.notes,
         mdt_vehicles.image,
         mdt_vehicles.known_information
@@ -591,10 +588,11 @@ local selectVehicle = [[
 function qbx.getVehicle(plate)
     local response = MySQL.rawExecute.await(selectVehicle, {plate})?[1]
     local player = exports.qbx_core:GetPlayerByCitizenId(response.citizenid)
+    if not player then player = exports.qbx_core:GetOfflinePlayer(response.citizenid) end
     local data = {
         plate = response.plate,
-        vehicle = response.vehicle,
-        mods = response.mods,
+        vehicle = response.model,
+        mods = response.props,
         notes = response.notes,
         image = response.image,
         known_information = response.known_information,

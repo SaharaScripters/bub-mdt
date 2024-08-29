@@ -145,7 +145,7 @@ CREATE TABLE IF NOT EXISTS `mdt_reports_evidence` (
     `image` VARCHAR(90) NOT NULL DEFAULT '',
     INDEX `reportid` (`reportid`),
     CONSTRAINT `FK_mdt_reports_evidence_mdt_reports` FOREIGN KEY (`reportid`) REFERENCES `mdt_reports` (`id`) ON UPDATE CASCADE ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=1 ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `mdt_vehicles` (
     `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,

@@ -1,4 +1,3 @@
-local QBX = exports['qb-core']:GetCoreObject()
 local qb = {}
 local officer = {}
 
@@ -7,14 +6,12 @@ qb.logoutEvent = 'QBCore:Client:OnPlayerUnload'
 qb.setGroupEvent = 'QBCore:Client:OnJobUpdate'
 
 function qb.getOfficerData()
-    local playerData = QBX.Functions.GetPlayerData()
-
+    local playerData = QBX.PlayerData
     officer.citizenid = playerData.citizenid
     officer.firstname = playerData.charinfo.firstname
     officer.lastname = playerData.charinfo.lastname
     officer.role = playerData.job.grade.name
     officer.grade = playerData.job.grade.level
-
     return officer
 end
 
@@ -23,11 +20,11 @@ function qb.notify(text, type)
 end
 
 function qb.isJobPolice()
-    return QBX.Functions.GetPlayerData().job.type == 'leo' and true or false
+    return QBX.PlayerData.job.type == 'leo' and true or false
 end
 
 function qb.isOnDuty()
-    return QBX.Functions.GetPlayerData().job.onduty and true or false
+    return QBX.PlayerData.job.onduty and true or false
 end
 
 function qb.GetVehiclesByName()
@@ -35,7 +32,7 @@ function qb.GetVehiclesByName()
 end
 
 function qb.getPlayerGender()
-    return QBX.Functions.GetPlayerData().charinfo.gender == 1 and "Female" or "Male"
+    return QBX.PlayerData.charinfo.gender == 1 and "Female" or "Male"
 end
 
 return qb
