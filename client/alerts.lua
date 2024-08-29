@@ -1,19 +1,16 @@
 local config = require 'config'
 if config.isDispatchEnabled then
-    local framework = require(('client.framework.%s'):format(config.framework))
+    local framework = require 'client.framework'
     local utils = require 'client.utils'
-
     local function CustomAlert(data)
         local coords = data.coords
         local disptachInfo = {}
-
         for i = 1, #data.info do
             disptachInfo[#disptachInfo+1] = {
                 label = data.info[i].label,
                 icon = data.info[i].icon
             }
         end
-
         local dispatchData = {
             code = data.code or '10-80',
             offense = data.offense,
@@ -26,15 +23,12 @@ if config.isDispatchEnabled then
             isEmergency = data.isEmergency or false,
             blipCoords = coords,
         }
-
         TriggerServerEvent('mdt:server:CreateCall', dispatchData)
     end
     exports('CustomAlert', CustomAlert)
-
     local function VehicleTheft()
         local coords = GetEntityCoords(cache.ped)
         local closestVehicle = lib.getClosestVehicle(GetEntityCoords(cache.ped))
-
         local dispatchData = {
             code = '10-35',
             offense = "Vehicle Theft",
@@ -60,14 +54,11 @@ if config.isDispatchEnabled then
             isEmergency = false,
             blipCoords = coords,
         }
-
         TriggerServerEvent('mdt:server:CreateCall', dispatchData)
     end
     exports('VehicleTheft', VehicleTheft)
-
     local function Shooting()
         local coords = GetEntityCoords(cache.ped)
-
         local dispatchData = {
             code = '10-11',
             offense = "Shooting in progress",
@@ -89,14 +80,11 @@ if config.isDispatchEnabled then
             isEmergency = false,
             blipCoords = coords,
         }
-
         TriggerServerEvent('mdt:server:CreateCall', dispatchData)
     end
     exports('Shooting', Shooting)
-
     local function VehicleShooting()
         local coords = GetEntityCoords(cache.ped)
-
         local dispatchData = {
             code = '10-60',
             offense = "Shots Fired from Vehicle",
@@ -130,14 +118,11 @@ if config.isDispatchEnabled then
             isEmergency = false,
             blipCoords = coords,
         }
-
         TriggerServerEvent('mdt:server:CreateCall', dispatchData)
     end
     exports('VehicleShooting', VehicleShooting)
-
     local function SpeedingVehicle()
         local coords = GetEntityCoords(cache.ped)
-
         local dispatchData = {
             code = '10-11',
             offense = "Reckless driving",
@@ -163,14 +148,11 @@ if config.isDispatchEnabled then
             isEmergency = false,
             blipCoords = coords,
         }
-
         TriggerServerEvent('mdt:server:CreateCall', dispatchData)
     end
     exports('SpeedingVehicle', SpeedingVehicle)
-
     local function CarJacking(vehicle)
         local coords = GetEntityCoords(cache.ped)
-
         local dispatchData = {
             code = '10-35',
             offense = "Car Jacking",
@@ -196,14 +178,11 @@ if config.isDispatchEnabled then
             isEmergency = false,
             blipCoords = coords,
         }
-
         TriggerServerEvent('mdt:server:CreateCall', dispatchData)
     end
     exports('CarJacking', CarJacking)
-
     local function OfficerDown()
         local coords = GetEntityCoords(cache.ped)
-
         local dispatchData = {
             code = '10-99',
             offense = "Officer Down",

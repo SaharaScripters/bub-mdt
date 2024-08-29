@@ -2,7 +2,7 @@ local utils = require 'server.utils'
 local db = require 'server.db'
 local officers = require 'server.officers'
 local config = require 'config'
-local framework = require(('server.framework.%s'):format(config.framework))
+local framework = require 'server.framework'
 
 require 'server.commands'
 require 'server.units'
@@ -11,12 +11,9 @@ require 'server.calls'
 
 utils.registerCallback('mdt:openMdt', function()
     local officerData = officers.get(source)
-
     if not officerData then return end
-
     local isAuthorised = officerData and true or false
     local callSign = officerData.callsign
-
     return isAuthorised, callSign
 end)
 
@@ -26,7 +23,6 @@ end)
 
 utils.registerCallback('mdt:getAnnouncements', function(source, page)
     local announcements = db.selectAnnouncements()
-
     return {
         announcements = announcements
     }
@@ -34,7 +30,6 @@ end)
 
 utils.registerCallback('mdt:createAnnouncement', function(source, data)
     local officer = officers.get(source)
-
     return officer and db.createAnnouncement(officer.citizenid, data.contents)
 end)
 
@@ -42,10 +37,8 @@ utils.registerCallback('mdt:getRecentActivity', function(source)
     return db.getRecentActivity()
 end)
 
-
 utils.registerCallback('mdt:getAllProfiles', function(source, data)
     local profiles = db.selectAllProfiles()
-
     return {
         profiles = profiles
     }
@@ -73,7 +66,6 @@ end)
 
 utils.registerCallback('mdt:getIncidents', function(source, data)
     local incidents = db.selectIncidents()
-
     return {
         incidents = incidents
     }
@@ -81,25 +73,21 @@ end)
 
 utils.registerCallback('mdt:createIncident', function(source, title)
     local officer = officers.get(source)
-
     return officer and db.createIncident(title, ('%s %s'):format(officer.firstname, officer.lastname), officer.citizenid)
 end)
 
 utils.registerCallback('mdt:deleteIncident', function(source, data)
     local officer = officers.get(source)
-
     return db.deleteIncident(data.id, officer.citizenid)
 end)
 
 utils.registerCallback('mdt:getIncident', function(source, incidentId)
     local response = db.selectIncidentById(incidentId)
-
     if response then
         response.officersInvolved = db.selectOfficersInvolved(incidentId)
         response.evidence = db.selectEvidence(incidentId)
         response.criminals = db.selectCriminalsInvolved(incidentId)
     end
-
     return response
 end)
 
@@ -134,7 +122,6 @@ utils.registerCallback('mdt:saveCriminal', function(source, data)
     else
         db.removeWarrant(data.id, data.criminal.citizenid)
     end
-
     return db.saveCriminal(data.id, data.criminal, officer.citizenid)
 end)
 
@@ -166,32 +153,27 @@ utils.registerCallback('mdt:getRecommendedWarrantExpiry', function(source, charg
     local currentTime = os.time(os.date("!*t"))
     local baseWarrantDuration = 259200000 -- 72 hours
     local addonTime = 0
-
     for i = 1, #charges do
         local charge = charges[i]
         if charge.time ~= 0 then
             addonTime = addonTime + (charge.time * 60 * 60000 * charge.count)  -- 1 month of penalty time = 1 hour of warrant time
         end
     end
-
     return currentTime * 1000 + addonTime + baseWarrantDuration
 end)
 
 utils.registerCallback('mdt:getReports', function()
     local reports = db.selectReports()
-
     return reports
 end)
 
 utils.registerCallback('mdt:getReport', function(source, reportId)
     local response = db.selectReportById(reportId)
-
     if response then
         response.officersInvolved = db.selectOfficersInvolvedReport(reportId)
         response.evidence = db.selectEvidenceReport(reportId)
         response.citizensInvolved = db.selectCitizensInvolvedReport(reportId)
     end
-
     return response
 end)
 
@@ -213,7 +195,6 @@ end)
 
 utils.registerCallback('mdt:createReport', function(source, title)
     local officer = officers.get(source)
-
     return officer and db.createReport(title, ('%s %s'):format(officer.firstname, officer.lastname), officer.citizenid)
 end)
 
@@ -287,9 +268,7 @@ end)
 
 utils.registerCallback('mdt:setOfficerCallSign', function(source, data)
     if db.selectOfficerCallSign(data.callsign) then return false end
-
     db.updateOfficerCallSign(data.citizenid, data.callsign)
-
     return true
 end)
 
@@ -327,7 +306,6 @@ end)
 
 RegisterServerEvent("mdt:updateProfileImage", function(playerId, image)
     local player = exports.qbx_core:GetPlayer(playerId)
-
     db.updateProfileImage(player.PlayerData.citizenid, image)
 end)
 
@@ -351,7 +329,6 @@ end
 
 AddEventHandler('onResourceStop', function(resource)
     if resource ~= cache.resource then return end
-
     for playerId, officer in pairs(officers.getAll()) do
         if officer.unitId then
             Player(playerId).state.mdtUnitId = nil

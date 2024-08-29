@@ -1,14 +1,10 @@
-local config = require 'config'
-
 camera = false
 local cameraprop = nil
-
 local FOV_MAX = 80.0
 local FOV_MIN = 5.0 -- max zoom level (smaller fov is more zoom)
 local ZOOM_SPEED = 10.0 -- camera zoom speed
 local SPEED_LEFT_RIGHT = 8.0 -- speed by which the camera pans left-right
 local SPEED_UP_DOWN = 8.0 -- speed by which the camera pans up-down
-
 local fov = (FOV_MAX+FOV_MIN) * 0.5
 
 local function hideHUDThisFrame()
@@ -76,28 +72,21 @@ end
 function CameraLoop(data)
     lib.requestAnimDict("amb@world_human_paparazzi@male@base")
     TaskPlayAnim(cache.ped, "amb@world_human_paparazzi@male@base", 'base', 6.0, 3.0, -1, 49, 1.0, false, false, false)
-
     local cameraModel = lib.requestModel(`prop_pap_camera_01`)
-
     if cameraModel then
         local coords = GetEntityCoords(cache.ped)
-
         cameraprop = CreateObject(cameraModel, coords.x, coords.y, coords.z + 0.2, true, true, true)
         AttachEntityToEntity(cameraprop, cache.ped, GetPedBoneIndex(cache.ped, 28422), 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, true, true, false, true, 1, true)
     end
-
     CreateThread(function()
         Wait(500)
-
         SetTimecycleModifier("default")
         SetTimecycleModifierStrength(0.3)
-
         local cam = CreateCam("DEFAULT_SCRIPTED_FLY_CAMERA", true)
         AttachCamToEntity(cam, cache.ped, 0.0, 1.0, 0.8, true)
         SetCamRot(cam, 0.0, 0.0, GetEntityHeading(cache.ped), 2)
         SetCamFov(cam, fov)
         RenderScriptCams(true, false, 0, true, false)
-
         while camera and not IsEntityDead(cache.ped) do
             DisablePlayerFiring(cache.ped, true)
             if IsControlJustPressed(0, 177) then
@@ -116,19 +105,15 @@ function CameraLoop(data)
                     local resp = json.decode(imageData)
                     if resp and resp.url then
                         camera = false
-
                         if cameraprop then
                             DeleteEntity(cameraprop)
                         end
-
                         ClearPedTasks(cache.ped)
-
                         local ImageData = {
                             id = data.id,
                             imageLabel = data.imageLabel,
                             imageURL = resp.url
                         }
-
                         if (data.type == 'report') then
                             lib.callback.await('mdt:addReportEvidenceFromPictureTaking', false, ImageData)
                             SendNUIMessage({
@@ -148,22 +133,17 @@ function CameraLoop(data)
                                 }
                             })
                         end
-
                         if not IsEntityPlayingAnim(cache.ped, tabletAnimDict, 'base', 3) then
                             lib.requestAnimDict(tabletAnimDict)
                             TaskPlayAnim(cache.ped, tabletAnimDict, 'base', 6.0, 3.0, -1, 49, 1.0, false, false, false)
                         end
-
                         if not tablet then
                             local tabletModel = lib.requestModel(`prop_cs_tablet`)
-
                             if not tabletModel then return end
-
                             local coords = GetEntityCoords(cache.ped)
                             tablet = CreateObject(tabletModel, coords.x, coords.y, coords.z, true, true, true)
                             AttachEntityToEntity(tablet, cache.ped, GetPedBoneIndex(cache.ped, 28422), 0.0, 0.0, 0.03, 0.0, 0.0, 0.0, true, true, false, true, 0, true)
                         end
-
                         SendNUIMessage({
                             action = 'setVisible',
                             data = {
@@ -176,14 +156,12 @@ function CameraLoop(data)
                     end
                 end)
             end
-
             local zoomvalue = (1.0 / (FOV_MAX - FOV_MIN)) * (fov - FOV_MIN)
             checkInputRotation(cam, zoomvalue)
             handleZoom(cam)
             hideHUDThisFrame()
             Wait(0)
         end
-
         DisablePlayerFiring(cache.ped, false)
         camera = false
         ClearTimecycleModifier()

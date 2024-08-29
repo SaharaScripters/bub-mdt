@@ -21,7 +21,6 @@ RegisterNetEvent('QBCore:Server:OnPlayerLoaded', function()
 end)
 
 AddEventHandler("QBCore:Server:OnJobUpdate", function(source, jobData)
-
     local officer = officers.get(source)
     if officer then
         if jobData.name ~= 'police' then
@@ -64,7 +63,6 @@ function qbx.getAnnouncements()
         ON
             c.citizenid = a.creator
     ]])
-
     local result = {}
     for i = 1, #announcements do
         local charinfo = json.decode(announcements[i].charinfo)
@@ -78,7 +76,6 @@ function qbx.getAnnouncements()
             createdAt = announcements[i].createdAt
         })
     end
-
     return result
 end
 
@@ -104,7 +101,6 @@ local selectWarrants = [[
 function qbx.getWarrants()
     local queryResult = MySQL.rawExecute.await(selectWarrants, {})
     local warrants = {}
-
     for _, v in pairs(queryResult) do
         local charinfo = json.decode(v.charinfo)
         warrants[#warrants+1] = {
@@ -116,7 +112,6 @@ function qbx.getWarrants()
             image = v.image
         }
     end
-
     return warrants
 end
 
@@ -139,11 +134,9 @@ function qbx.getCharacterProfile(parameters)
             a.citizenid = ?
     ]], parameters)?[1]
     local profile
-
     if result then
         local charinfo = json.decode(result.charinfo)
         local metadata = json.decode(result.metadata)
-
         profile = {
             citizenid = result.citizenid,
             firstname = charinfo.firstname,
@@ -155,7 +148,6 @@ function qbx.getCharacterProfile(parameters)
             image = result.image,
         }
     end
-
     return profile
 end
 
@@ -176,7 +168,6 @@ local selectProfiles = [[
 function qbx.getAllProfiles()
     local profilesResult = MySQL.rawExecute.await(selectProfiles, {})
     local profiles = {}
-
     for _, v in pairs(profilesResult) do
         local charinfo = json.decode(v.charinfo)
         profiles[#profiles+1] = {
@@ -187,14 +178,12 @@ function qbx.getAllProfiles()
             image = v.image,
         }
     end
-
     return profiles
 end
 
 function qbx.getDriverPoints(citizenid)
     local result = MySQL.rawExecute.await('SELECT SUM(COALESCE(points, 0) * COALESCE(count, 1)) AS total_points FROM mdt_incidents_charges WHERE citizenid = ?', { citizenid })?[1]
     if (result.total_points) then return result.total_points end
-
     return 0
 end
 
@@ -227,10 +216,8 @@ function qbx.getLicenses(citizenid)
             citizenid = ?
         ]], { citizenid })?[1]
         local metadata = json.decode(result.metadata)
-
         return metadata.licences
     end
-
     return player.PlayerData.metadata.licences
 end
 
@@ -248,9 +235,7 @@ function qbx.getJobs(parameters)
     local job = json.decode(result.job)
     local metadata = json.decode(result.metadata)
     local jobs = {}
-
     table.insert(jobs, { job = job.label, gradeLabel = job.grade.name })
-
     if metadata.otherjobs then
         for k, v in pairs(metadata.otherjobs) do
             if not sharedJobs[k] then goto continue end
@@ -259,14 +244,12 @@ function qbx.getJobs(parameters)
             ::continue::
         end
     end
-
     return jobs
 end
 
 -- Still needs implementation
 function qbx.getProperties(parameters)
     local properties = {}
-
     return properties
 end
 
@@ -289,9 +272,7 @@ function qbx.getOfficersInvolved(parameters)
         WHERE
             incidentid = ?
     ]], parameters)
-
     local officers = {}
-
     for _, v in pairs(queryResult) do
         local charinfo = json.decode(v.charinfo)
         officers[#officers+1] = {
@@ -301,7 +282,6 @@ function qbx.getOfficersInvolved(parameters)
             callsign = v.callSign,
         }
     end
-
     return officers
 end
 
@@ -324,9 +304,7 @@ function qbx.getOfficersInvolvedReport(parameters)
         WHERE
             reportid = ?
     ]], parameters)
-
     local officers = {}
-
     for _, v in pairs(queryResult) do
         local charinfo = json.decode(v.charinfo)
         officers[#officers+1] = {
@@ -336,7 +314,6 @@ function qbx.getOfficersInvolvedReport(parameters)
             callsign = v.callSign,
         }
     end
-
     return officers
 end
 
@@ -358,9 +335,7 @@ function qbx.getCitizensInvolvedReport(parameters)
         WHERE
             reportid = ?
     ]], parameters)
-
     local citizens = {}
-
     for _, v in pairs(queryResult) do
         local charinfo = json.decode(v.charinfo)
         citizens[#citizens+1] = {
@@ -370,7 +345,6 @@ function qbx.getCitizensInvolvedReport(parameters)
             dob = charinfo.birthdate
         }
     end
-
     return citizens
 end
 
@@ -392,9 +366,7 @@ function qbx.getCriminalsInvolved(parameters)
         WHERE
             incidentid = ?
     ]], parameters)
-
     local involvedCriminals = {}
-
     for _, v in pairs(queryResult) do
         local charinfo = json.decode(v.charinfo)
         involvedCriminals[#involvedCriminals+1] = {
@@ -407,7 +379,6 @@ function qbx.getCriminalsInvolved(parameters)
             pleadedGuilty = v.pleadedGuilty
         }
     end
-
     return involvedCriminals
 end
 
@@ -457,7 +428,6 @@ function qbx.getOfficers()
     local query = selectOfficers
     local queryResult = MySQL.rawExecute.await(query)
     local officers = {}
-
     for _, v in pairs(queryResult) do
         local charinfo = json.decode(v.charinfo)
         officers[#officers+1] = {
@@ -467,7 +437,6 @@ function qbx.getOfficers()
             callsign = v.callSign,
         }
     end
-
     return officers
 end
 
@@ -504,9 +473,7 @@ function qbx.fetchRoster()
     local query = selectOfficersForRoster
     local queryResult = MySQL.rawExecute.await(query)
     local rosterOfficers = {}
-
     local job = exports.qbx_core:GetJob('police')
-
     for _, v in pairs(queryResult) do
         local charinfo = json.decode(v.charinfo)
         rosterOfficers[#rosterOfficers+1] = {
@@ -524,7 +491,6 @@ function qbx.fetchRoster()
             lastActive = v.formatted_lastActive
         }
     end
-
     return rosterOfficers
 end
 
@@ -539,7 +505,6 @@ local selectCharacters = [[
 function qbx.getCharacters()
     local queryResult = MySQL.rawExecute.await(selectCharacters)
     local characters = {}
-
     for _, v in pairs(queryResult) do
         local charinfo = json.decode(v.charinfo)
         characters[#characters+1] = {
@@ -549,7 +514,6 @@ function qbx.getCharacters()
             dob = charinfo.birthdate,
         }
     end
-
     return characters
 end
 
@@ -562,7 +526,7 @@ local selectVehicles = [[
 ]]
 
 function qbx.getVehicles()
-  return MySQL.rawExecute.await(selectVehicles)
+    return MySQL.rawExecute.await(selectVehicles)
 end
 
 local selectVehicle = [[
@@ -597,15 +561,12 @@ function qbx.getVehicle(plate)
         known_information = response.known_information,
         owner = player.PlayerData.charinfo.firstname .. " " .. player.PlayerData.charinfo.lastname .. ' (' .. response.citizenid .. ')'
     }
-
     return data
 end
 
 function qbx.hireOfficer(data)
     exports.qbx_core:AddPlayerToJob(data.citizenid, 'police', 1)
-
     local success = MySQL.prepare.await('INSERT INTO `mdt_profiles` (`citizenid`, `callsign`, `lastActive`) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE `callsign` = ?, `lastActive` = ?', { data.citizenid, data.callsign, os.date("%Y-%m-%d %H:%M:%S"), data.callsign, os.date("%Y-%m-%d %H:%M:%S") })
-
     return success
 end
 
@@ -618,9 +579,7 @@ end
 
 function qbx.setOfficerRank(data)
     exports.qbx_core:AddPlayerToJob(data.citizenId, 'police', data.grade)
-
     return true
 end
-
 
 return qbx

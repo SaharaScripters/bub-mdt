@@ -10,7 +10,6 @@ end
 
 SetInterval(function()
     local n = 0
-
     for _, officer in pairs(activeOfficers) do
         local coords = GetEntityCoords(officer.ped)
         officer.position[1] = coords.y
@@ -19,7 +18,6 @@ SetInterval(function()
         n += 1
         officersArray[n] = officer
     end
-
     triggerOfficerEvent('mdt:updateOfficerPositions', officersArray)
     table.wipe(officersArray)
 end, math.max(500, 5000))

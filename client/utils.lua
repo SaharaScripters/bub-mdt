@@ -248,14 +248,9 @@ function utils.GetVehicleColor(vehicle)
     local vehicleColor1, vehicleColor2 = GetVehicleColours(vehicle)
     local color1 = Colors[tostring(vehicleColor1)]
     local color2 = Colors[tostring(vehicleColor2)]
-
     if color1 and color2 then return color2 .. " on " .. color1 end
-
     if color1 then return color1 end
-
     if color2 then return color2 end
-
-    
     return "Unknown"
 end
 

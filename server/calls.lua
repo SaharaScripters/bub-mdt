@@ -18,11 +18,9 @@ function createCall(data)
         location = '',
         info = data.info
     }
-
     officers.triggerEvent('mdt:createCall', { id = callId, call = activeCalls[callId] })
     officers.triggerEvent('mdt:addBlip', { blipCoords = data.blipCoords, text = '(' .. data.code .. ') ' .. data.offense })
     callId += 1
-
     return callId - 1
 end
 
@@ -30,9 +28,7 @@ exports('createCall', createCall)
 
 function updateCallCoords(callId, coords)
     if not activeCalls[callId] then return end
-
     activeCalls[callId].coords = coords
-
     officers.triggerEvent('mdt:updateCallCoords', { id = callId, coords = coords })
 end
 
@@ -47,7 +43,6 @@ local function removeExpiredCalls()
             amountRemoved += 1
         end
     end
-
     officers.triggerEvent('mdt:updateCalls', { calls = utils.cleanTable(activeCalls) })
 end
 
@@ -61,40 +56,29 @@ end)
 
 utils.registerCallback('mdt:respondToCall', function(source, id)
     local playerUnitId = Player(source).state.mdtUnitId
-
     if not playerUnitId or activeCalls[id].units[playerUnitId] then
         TriggerClientEvent('mdt:client:notify', source, locale('already_responding_or_part_of_unit'), 'error')
         return false
     end
-
     activeCalls[id].units[playerUnitId] = units.getUnit(playerUnitId)
-
     officers.triggerEvent('mdt:editCallUnits', { id = id, units = activeCalls[id].units })
     TriggerClientEvent('mdt:client:notify', source, locale('responded_to_recent_call'), 'success')
-
     return true
 end)
 
 function detachFromCall(unitId, id)
     if not activeCalls[id].units[unitId] then return false end
-
     activeCalls[id].units[unitId] = nil
-
     officers.triggerEvent('mdt:editCallUnits', { id = id, units = activeCalls[id].units })
-
     return true
 end
 
 utils.registerCallback('mdt:detachFromCall', function(source, id)
     local playerUnitId = Player(source).state.mdtUnitId
     if not playerUnitId then return false end
-
     if not activeCalls[id].units[playerUnitId] then return false end
-
     activeCalls[id].units[playerUnitId] = nil
-
     officers.triggerEvent('mdt:editCallUnits', { id = id, units = activeCalls[id].units })
-
     return true
 end)
 
@@ -104,9 +88,7 @@ utils.registerCallback('mdt:setCallUnits', function(source, data)
         local unitId = data.units[i]
         activeCalls[data.id].units[unitId] = units.getUnit(tostring(unitId))
     end
-
     officers.triggerEvent('mdt:setCallUnits', { id = data.id, units = activeCalls[data.id].units })
-
     return true
 end)
 

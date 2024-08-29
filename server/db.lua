@@ -1,6 +1,6 @@
 local db = {}
 local config = require 'config'
-local framework = require(('server.framework.%s'):format(config.framework))
+local framework = require 'server.framework'
 local profileCards = require 'server.profileCards'
 
 function createRecentActivity(citizenid, category, type, activityid)
@@ -8,7 +8,6 @@ function createRecentActivity(citizenid, category, type, activityid)
         INSERT INTO `mdt_recent_activity` (`citizenid`, `category`, `type`, `activityid`)
         VALUES (?, ?, ?, ?);
     ]]
-
     local success = MySQL.prepare.await(insertRecentActivityQuery, { citizenid, category, type, activityid })
     return success
 end
@@ -44,7 +43,6 @@ local selectRecentActivities = [[
 function db.getRecentActivity()
     local queryResult = MySQL.rawExecute.await(selectRecentActivities)
     local recentActivity = {}
-
     for _, v in pairs(queryResult) do
         local charinfo = json.decode(v.charinfo)
         recentActivity[#recentActivity+1] = {
@@ -57,7 +55,6 @@ function db.getRecentActivity()
         citizenid = v.citizenid,
         }
     end
-
     return recentActivity
 end
 
@@ -73,19 +70,14 @@ end
 function db.selectCharacterProfile(citizenid)
     local parameters = { citizenid }
     local profile = framework.getCharacterProfile(parameters)
-
     if not profile then return end
-
     local cards = profileCards.getAll()
-
     for i = 1, #cards do
         local card = cards[i]
         profile[card.id] = card.getData(profile)
     end
-
     profile.relatedReports = MySQL.rawExecute.await('SELECT DISTINCT `id`, `title`, `author`, DATE_FORMAT(`date`, "%Y-%m-%d") as date FROM `mdt_reports` r JOIN `mdt_reports_citizens` rc ON r.id = rc.reportid WHERE `citizenid` = ?', parameters) or {}
     profile.relatedIncidents = MySQL.rawExecute.await('SELECT DISTINCT `id`, `title`, `author`, DATE_FORMAT(`date`, "%Y-%m-%d") as date FROM `mdt_incidents` a LEFT JOIN `mdt_incidents_charges` b ON b.incidentid = a.id WHERE `citizenid` = ?', parameters) or {}
-
     return profile
 end
 
@@ -127,10 +119,8 @@ end
 
 function db.createIncident(title, author, citizenid)
     local response  = MySQL.insert.await('INSERT INTO `mdt_incidents` (`title`, `author`) VALUES (?, ?)', { title, author })
-
     createRecentActivity(citizenid, 'incidents', 'created', response)
-
-    return response 
+    return response
 end
 
 function db.deleteIncident(incidentId, citizenid)
@@ -142,12 +132,9 @@ function db.deleteIncident(incidentId, citizenid)
         { 'DELETE FROM `mdt_incidents_criminals` WHERE `incidentid` = ?', { incidentId } },
         { 'DELETE FROM `mdt_incidents` WHERE `id` = ?', { incidentId } },
     }
-
     local result = MySQL.transaction.await(queries)
-
     -- Add logs
     createRecentActivity(citizenid, 'incidents', 'deleted', incidentId)
-
     return result
 end
 
@@ -163,18 +150,15 @@ function db.selectCriminalsInvolved(incidentId)
     local parameters = { incidentId }
     local criminals = framework.getCriminalsInvolved(parameters) or {}
     local charges = framework.getCriminalCharges(parameters) or {}
-
     for _, criminal in pairs(criminals) do
         criminal.charges = {}
         local chargesN = 0
-
         criminal.penalty = {
             time = 0,
             fine = 0,
             reduction = criminal.reduction,
             points = 0
         }
-
         for _, charge in pairs(charges) do
             if charge.label and charge.citizenid == criminal.citizenid then
                 charge.citizenid = nil
@@ -185,15 +169,12 @@ function db.selectCriminalsInvolved(incidentId)
                 criminal.charges[chargesN] = charge
             end
         end
-
         if criminal.warrantExpiry then
             criminal.issueWarrant = true
         end
-
         criminal.processed = criminal.processed or false
         criminal.pleadedGuilty = criminal.pleadedGuilty or false
     end
-
     return criminals
 end
 
@@ -227,11 +208,9 @@ end
 
 function db.createWarrant(incidentId, citizenId, expiry)
     local warrantExists = MySQL.prepare.await('SELECT COUNT(1) FROM `mdt_warrants` WHERE `incidentid` = ? AND `citizenid` = ?', { incidentId, citizenId }) > 0
-
     if warrantExists then
         return MySQL.prepare.await('UPDATE `mdt_warrants` SET `expiresAt` = ? WHERE `incidentid` = ? AND `citizenid` = ?', { expiry, incidentId, citizenId })
     end
-
     return MySQL.prepare.await('INSERT INTO `mdt_warrants` (`incidentid`, `citizenid`, `expiresAt`) VALUES (?, ?, ?)', { incidentId, citizenId, expiry })
 end
 
@@ -250,14 +229,12 @@ function db.saveCriminal(incidentId, criminal, officerCitizenid)
         { 'UPDATE IGNORE `mdt_incidents_criminals` SET `reduction` = ?, `warrantExpiry` = ?, `processed` = ?, `pleadedGuilty` = ? WHERE `incidentId` = ? AND `citizenid` = ?', { criminal.penalty.reduction, criminal.issueWarrant and criminal.warrantExpiry or nil, criminal.processed, criminal.pleadedGuilty, incidentId, criminal.citizenid } },
     }
     local queryN = #queries
-
     if next(criminal.charges) then
         for _, v in pairs(criminal.charges) do
             queryN += 1
             queries[queryN] = { 'INSERT INTO `mdt_incidents_charges` (`incidentId`, `citizenid`, `charge`, `type`, `count`, `time`, `fine`, `points`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', { incidentId, criminal.citizenid, v.label, v.type, v.count, v.time, v.fine, v.points } }
         end
     end
-
     return MySQL.transaction.await(queries)
 end
 
@@ -311,10 +288,8 @@ end
 
 function db.createReport(title, author, citizenid)
     local response  = MySQL.insert.await('INSERT INTO `mdt_reports` (`title`, `author`) VALUES (?, ?)', { title, author })
-
     createRecentActivity(citizenid, 'reports', 'created', response)
-
-    return response 
+    return response
 end
 
 function db.addReportOfficer(reportId, citizenId)
@@ -344,7 +319,6 @@ function db.updateVehicleInformation(plate, knownInformation)
         VALUES (?, NULL, NULL, ?) 
         ON DUPLICATE KEY UPDATE `known_information` = VALUES(`known_information`)
     ]]
-
     return MySQL.prepare.await(query, { plate, json.encode(knownInformation) })
 end
 
@@ -356,7 +330,6 @@ function db.isVehicleBOLO(plate)
     local response = MySQL.rawExecute.await('SELECT * FROM `mdt_bolos` WHERE `plate` = ?', {
         plate
     })
-    
     return response[1] and true or false
 end
 
@@ -371,11 +344,9 @@ end
 
 function db.createBOLO(plate, expirationDate, reason)
     local boloExists = MySQL.prepare.await('SELECT COUNT(1) FROM `mdt_bolos` WHERE `plate` = ?', { plate }) > 0
-
     if boloExists then
         return MySQL.prepare.await('UPDATE `mdt_bolos` SET `reason` = ?, `expiresAt` = ? WHERE `plate` = ?', { reason, expirationDate, plate })
     end
-
     return MySQL.prepare.await('INSERT INTO `mdt_bolos` (`plate`, `reason`, `expiresAt`) VALUES (?, ?, ?)', { plate, reason, expirationDate })
 end
 
@@ -412,8 +383,8 @@ function db.deleteCharge(label)
 end
 
 function db.createCharge(data)
-    return MySQL.prepare.await('INSERT INTO `mdt_offenses` (`label`, `type`, `category`, `description`, `time`, `fine`, `points`) VALUES (?, ?, ?, ?, ?, ?, ?)', { 
-        data.label, 
+    return MySQL.prepare.await('INSERT INTO `mdt_offenses` (`label`, `type`, `category`, `description`, `time`, `fine`, `points`) VALUES (?, ?, ?, ?, ?, ?, ?)', {
+        data.label,
         data.type,
         data.category,
         data.description,
@@ -428,16 +399,15 @@ function db.editCharge(label, fine, time, points)
 end
 
 function db.setOfficerRoles(data)
-    MySQL.prepare.await('UPDATE `mdt_profiles` SET `apu` = ?, `air` = ?, `mc` = ?, `k9` = ?, `fto` = ? WHERE `citizenid` = ?', 
+    MySQL.prepare.await('UPDATE `mdt_profiles` SET `apu` = ?, `air` = ?, `mc` = ?, `k9` = ?, `fto` = ? WHERE `citizenid` = ?',
     {
-        data.roles.apu, 
+        data.roles.apu,
         data.roles.air,
         data.roles.mc,
         data.roles.k9,
         data.roles.fto,
         data.citizenid
     })
-
     return true
 end
 

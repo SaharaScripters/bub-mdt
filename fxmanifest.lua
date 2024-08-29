@@ -1,19 +1,12 @@
---[[ FX Information ]]--
-fx_version   'cerulean'
-use_experimental_fxv2_oal 'yes'
-lua54        'yes'
-game         'gta5'
+fx_version 'cerulean'
+game 'gta5'
 
---[[ Resource Information ]]--
 name         'bub-mdt'
 version      '0.0.21'
 license      'GPL-3.0-or-later'
 author       'Bubble'
 
---[[ Manifest ]]--
-ox_libs {
-  'locale',
-}
+ox_lib 'locale'
 
 shared_scripts {
 	'@ox_lib/init.lua',
@@ -36,6 +29,8 @@ files {
   'web/build/**/*',
   'locales/*.json',
   'client/*.lua',
-  'client/framework/*.lua',
   'config.lua'
 }
+
+use_experimental_fxv2_oal 'yes'
+lua54 'yes'

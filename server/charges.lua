@@ -21,7 +21,6 @@ end
 
 MySQL.ready(function()
 	local dbCharges = MySQL.rawExecute.await('SELECT * FROM `mdt_offenses`')
-
 	for i = 1, #dbCharges do
 		local charge = dbCharges[i]
 		charges[charge.category][#charges[charge.category]+1] = charge
