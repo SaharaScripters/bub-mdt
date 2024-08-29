@@ -321,6 +321,10 @@ utils.registerCallback('mdt:fetchRoster', function(source)
     return framework.fetchRoster()
 end)
 
+utils.registerCallback('mdt:getFiveManageKey', function()
+    return 'key'
+end)
+
 RegisterServerEvent("mdt:updateProfileImage", function(playerId, image)
     local player = exports.qbx_core:GetPlayer(playerId)
 

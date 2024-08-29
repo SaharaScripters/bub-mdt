@@ -111,9 +111,10 @@ function CameraLoop(data)
                 end
             elseif IsControlJustPressed(1, 176) then
                 PlaySoundFrontend(-1, "Camera_Shoot", "Phone_Soundset_Franklin", false)
-                exports['screenshot-basic']:requestScreenshotUpload('https://api.fivemanage.com/api/image?apiKey=' .. config.fivemanageAPIKey, 'image', function(imageData)
+                local fiveManageKey = lib.callback.await('mdt:getFiveManageKey', 500)
+                exports['screenshot-basic']:requestScreenshotUpload('https://api.fivemanage.com/api/image?apiKey=' .. fiveManageKey, 'image', function(imageData)
                     local resp = json.decode(imageData)
-                    if resp then
+                    if resp and resp.url then
                         camera = false
 
                         if cameraprop then
@@ -152,12 +153,12 @@ function CameraLoop(data)
                             lib.requestAnimDict(tabletAnimDict)
                             TaskPlayAnim(cache.ped, tabletAnimDict, 'base', 6.0, 3.0, -1, 49, 1.0, false, false, false)
                         end
-                    
+
                         if not tablet then
                             local tabletModel = lib.requestModel(`prop_cs_tablet`)
-                        
+
                             if not tabletModel then return end
-                        
+
                             local coords = GetEntityCoords(cache.ped)
                             tablet = CreateObject(tabletModel, coords.x, coords.y, coords.z, true, true, true)
                             AttachEntityToEntity(tablet, cache.ped, GetPedBoneIndex(cache.ped, 28422), 0.0, 0.0, 0.03, 0.0, 0.0, 0.0, true, true, false, true, 0, true)
