@@ -322,7 +322,7 @@ utils.registerCallback('mdt:fetchRoster', function(source)
 end)
 
 utils.registerCallback('mdt:getFiveManageKey', function()
-    return 'key'
+    return GetConvar('SCREENSHOT_BASIC_TOKEN', '')
 end)
 
 RegisterServerEvent("mdt:updateProfileImage", function(playerId, image)
