@@ -4,7 +4,9 @@
     "Lua.diagnostics.globals": [
         "lib",
         "cache",
-        "locale",
+        "QBX",
         "MySQL",
+        "locale",
+        "qbx"
     ]
 }

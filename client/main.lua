@@ -81,7 +81,7 @@ local function openMdt()
                 }
             }
         })
-        
+
         local profileCards = lib.callback.await('mdt:getCustomProfileCards')
         local charges = lib.callback.await('mdt:getAllCharges')
 
@@ -111,19 +111,12 @@ local function openMdt()
 end
 exports('openMdt', openMdt)
 
-lib.addKeybind({
-    defaultKey = 'm',
-    description = 'Open the Police MDT',
-    name = 'openMdt',
-    onPressed = openMdt
-})
-
 if config.isDispatchEnabled then
     local function openMiniDispatch()
         if isMdtOpen then return end
 
         local isAuthorised = lib.callback.await('mdt:openDispatch', 500)
-        
+
         if not isAuthorised then return end
 
         isMiniDispatchOpen = true
@@ -229,7 +222,7 @@ RegisterNetEvent('mdt:updateOfficerPositions', function(data)
 
         if not blip then
             local name = ('police:%s'):format(officer.citizenid)
-            
+
             blip = AddBlipForCoord(officer.position[2], officer.position[1], officer.position[3])
             officerBlips[officer.citizenid] = blip
 

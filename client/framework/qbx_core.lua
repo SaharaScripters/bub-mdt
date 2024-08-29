@@ -6,12 +6,11 @@ qb.logoutEvent = 'QBCore:Client:OnPlayerUnload'
 qb.setGroupEvent = 'QBCore:Client:OnJobUpdate'
 
 function qb.getOfficerData()
-    local playerData = QBX.PlayerData
-    officer.citizenid = playerData.citizenid
-    officer.firstname = playerData.charinfo.firstname
-    officer.lastname = playerData.charinfo.lastname
-    officer.role = playerData.job.grade.name
-    officer.grade = playerData.job.grade.level
+    officer.citizenid = QBX.PlayerData.citizenid
+    officer.firstname = QBX.PlayerData.charinfo.firstname
+    officer.lastname = QBX.PlayerData.charinfo.lastname
+    officer.role = QBX.PlayerData.job.grade.name
+    officer.grade = QBX.PlayerData.job.grade.level
     return officer
 end
 

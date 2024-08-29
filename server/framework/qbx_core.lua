@@ -69,11 +69,11 @@ function qbx.getAnnouncements()
     local result = {}
     for i = 1, #announcements do
         local charinfo = json.decode(announcements[i].charinfo)
-        table.insert(result, { 
-            id = announcements[i].id, 
-            contents = announcements[i].contents, 
-            citizenid = announcements[i].citizenid, 
-            firstname = charinfo.firstname, 
+        table.insert(result, {
+            id = announcements[i].id,
+            contents = announcements[i].contents,
+            citizenid = announcements[i].citizenid,
+            firstname = charinfo.firstname,
             lastname = charinfo.lastname,
             image = announcements[i].image,
             createdAt = announcements[i].createdAt
@@ -218,7 +218,7 @@ end
 
 function qbx.getLicenses(citizenid)
     local player = exports.qbx_core:GetPlayerByCitizenId(citizenid)
-    if not player then 
+    if not player then
         local result = MySQL.rawExecute.await([[
         SELECT
             metadata
@@ -228,7 +228,7 @@ function qbx.getLicenses(citizenid)
             citizenid = ?
         ]], { citizenid })?[1]
         local metadata = json.decode(result.metadata)
-    
+
         return metadata.licences
     end
 
@@ -285,7 +285,7 @@ function qbx.getOfficersInvolved(parameters)
             players.citizenid = officer.citizenid
         LEFT JOIN
             mdt_profiles profile
-        ON 
+        ON
             players.citizenid = profile.citizenid
         WHERE
             incidentid = ?
@@ -320,7 +320,7 @@ function qbx.getOfficersInvolvedReport(parameters)
             players.citizenid = officer.citizenid
         LEFT JOIN
             mdt_profiles profile
-        ON 
+        ON
             players.citizenid = profile.citizenid
         WHERE
             reportid = ?
@@ -354,7 +354,7 @@ function qbx.getCitizensInvolvedReport(parameters)
             players.citizenid = officer.citizenid
         LEFT JOIN
             mdt_profiles profile
-        ON 
+        ON
             players.citizenid = profile.citizenid
         WHERE
             reportid = ?
@@ -525,7 +525,7 @@ function qbx.fetchRoster()
             lastActive = v.formatted_lastActive
         }
     end
-    
+
     return rosterOfficers
 end
 

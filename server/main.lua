@@ -13,14 +13,14 @@ utils.registerCallback('mdt:openMdt', function()
     local officerData = officers.get(source)
 
     if not officerData then return end
-    
+
     local isAuthorised = officerData and true or false
     local callSign = officerData.callsign
-    
+
     return isAuthorised, callSign
 end)
 
-utils.registerCallback('mdt:openDispatch', function()  
+utils.registerCallback('mdt:openDispatch', function()
     return officers.get(source) and true or false
 end)
 
