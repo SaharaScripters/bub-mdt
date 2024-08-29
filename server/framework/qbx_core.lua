@@ -32,11 +32,11 @@ AddEventHandler("QBCore:Server:OnJobUpdate", function(source, jobData)
     addOfficer(source)
 end)
 
-RegisterNetEvent('QBCore:Server:OnPlayerUnload', function(playerId)
-    local officer = officers.get(playerId)
+AddEventHandler('QBCore:Server:OnPlayerUnload', function(source)
+    local officer = officers.get(source)
 
     if officer then
-        officers.remove(playerId)
+        officers.remove(source)
     end
 end)
 
