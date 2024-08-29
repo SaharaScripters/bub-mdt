@@ -20,17 +20,15 @@ RegisterNetEvent('QBCore:Server:OnPlayerLoaded', function()
     addOfficer(source)
 end)
 
-AddEventHandler("qbx_core:server:onGroupUpdate", function(source, groupName)
-    local officer = officers.get(source)
+AddEventHandler("QBCore:Server:OnJobUpdate", function(source, jobData)
 
+    local officer = officers.get(source)
     if officer then
-        if groupName ~= 'police' then
+        if jobData.name ~= 'police' then
             return officers.remove(source)
         end
-
         return
     end
-
     addOfficer(source)
 end)
 
