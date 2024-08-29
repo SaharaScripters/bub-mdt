@@ -36,6 +36,11 @@ AddEventHandler('QBCore:Server:OnPlayerUnload', function(source)
     officers.remove(source)
 end)
 
+AddEventHandler('playerDropped', function (reason)
+  local src = source
+  officers.remove(src)
+end)
+
 local qbx = {}
 
 -- Dashboard
