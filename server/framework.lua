@@ -163,11 +163,13 @@ local selectProfiles = [[
         mdt_profiles profile
     ON
         profile.citizenid = players.citizenid
+    LIMIT 10 OFFSET ?
 ]]
 
 function qbx.getAllProfiles()
     local profilesResult = MySQL.rawExecute.await(selectProfiles, {})
     local profiles = {}
+
     for _, v in pairs(profilesResult) do
         local charinfo = json.decode(v.charinfo)
         profiles[#profiles+1] = {
@@ -178,6 +180,50 @@ function qbx.getAllProfiles()
             image = v.image,
         }
     end
+
+    return profiles
+end
+
+local selectProfilesFilter = selectProfiles:gsub('LIMIT', [[
+    WHERE
+        players.citizenid LIKE ?
+        OR CONCAT(
+            JSON_UNQUOTE(JSON_EXTRACT(players.charinfo, '$.firstname')),
+            ' ',
+            JSON_UNQUOTE(JSON_EXTRACT(players.charinfo, '$.lastname'))
+        ) LIKE ?
+    GROUP BY
+        players.citizenid
+    LIMIT
+]])
+
+function qbx.getProfiles(parameters, filter)
+    local query, params
+
+    if filter then
+        local searchInput = parameters[1]
+        params = { "%" .. searchInput .. "%", "%" .. searchInput .. "%", parameters[2] }
+
+        query = selectProfilesFilter
+    else
+        query = selectProfiles
+        params = parameters
+    end
+
+    local profilesResult = MySQL.rawExecute.await(query, params)
+    local profiles = {}
+
+    for _, v in pairs(profilesResult) do
+        local charinfo = json.decode(v.charinfo)
+        profiles[#profiles+1] = {
+            citizenid = v.citizenid,
+            firstname = charinfo.firstname,
+            lastname = charinfo.lastname,
+            dob = charinfo.birthdate,
+            image = v.image,
+        }
+    end
+
     return profiles
 end
 
@@ -502,8 +548,24 @@ local selectCharacters = [[
         players
 ]]
 
-function qbx.getCharacters()
-    local queryResult = MySQL.rawExecute.await(selectCharacters)
+local selectCharactersFilter = selectCharacters .. [[
+    WHERE
+        players.citizenid LIKE ?
+        OR CONCAT(
+            JSON_UNQUOTE(JSON_EXTRACT(players.charinfo, '$.firstname')),
+            ' ',
+            JSON_UNQUOTE(JSON_EXTRACT(players.charinfo, '$.lastname'))
+        ) LIKE ?
+    GROUP BY
+        players.citizenid
+]]
+
+function qbx.getCharacters(parameters, filter)
+    local searchInput = parameters[1]
+    local params = { "%" .. searchInput .. "%", "%" .. searchInput .. "%" }
+    local query = filter and selectCharactersFilter or selectCharacters
+
+    local queryResult = MySQL.rawExecute.await(query, params)
     local characters = {}
     for _, v in pairs(queryResult) do
         local charinfo = json.decode(v.charinfo)
@@ -551,7 +613,6 @@ local selectVehicle = [[
 function qbx.getVehicle(plate)
     local response = MySQL.rawExecute.await(selectVehicle, {plate})?[1]
     local player = exports.qbx_core:GetPlayerByCitizenId(response.citizenid)
-    if not player then player = exports.qbx_core:GetOfflinePlayer(response.citizenid) end
     local data = {
         plate = response.plate,
         vehicle = response.model,

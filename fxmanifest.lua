@@ -2,7 +2,7 @@ fx_version 'cerulean'
 game 'gta5'
 
 name         'bub-mdt'
-version      '0.0.21'
+version      '0.0.23'
 license      'GPL-3.0-or-later'
 author       'Bubble'
 

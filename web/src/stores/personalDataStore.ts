@@ -29,7 +29,7 @@ const usePersonalDataStore = create<PersonalDataState>((set) => ({
 				grade: 0,
 				image: "",
 				callSign: 0,
-				unit: 0,
+				grade: 0,
 		  },
 
 	// Actions

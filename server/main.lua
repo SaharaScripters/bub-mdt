@@ -44,6 +44,15 @@ utils.registerCallback('mdt:getAllProfiles', function(source, data)
     }
 end)
 
+utils.registerCallback('mdt:getProfiles', function(source, data)
+    local profiles = db.selectProfiles(data.page, data.search)
+
+    return {
+        hasMore = #profiles == 10 or false,
+        profiles = profiles
+    }
+end)
+
 utils.registerCallback('mdt:getProfile', function(source, data)
     return db.selectCharacterProfile(data)
 end)
@@ -111,8 +120,8 @@ utils.registerCallback('mdt:removeCriminal', function(source, data)
     return db.removeCriminal(data.id, data.criminalId)
 end)
 
-utils.registerCallback('mdt:getCriminalProfiles', function(source)
-    return db.searchCharacters()
+utils.registerCallback('mdt:getCriminalProfiles', function(source, search)
+    return db.searchCharacters(search)
 end)
 
 utils.registerCallback('mdt:saveCriminal', function(source, data)

@@ -46,7 +46,9 @@ end
 
 local function openMdt()
     local isAuthorised, callSign = lib.callback.await('mdt:openMdt', 500)
-    if not isAuthorised then return framework.notify('You do not have access to the MDT', 'error') end
+
+    if not isAuthorised then return end
+
     isMdtOpen = true
     if not IsEntityPlayingAnim(cache.ped, tabletAnimDict, 'base', 3) then
         lib.requestAnimDict(tabletAnimDict)
@@ -188,10 +190,13 @@ RegisterNetEvent('mdt:updateOfficerPositions', function(data)
         local officer = data[i]
         if officer.citizenid ~= player.citizenid then
             local blip = officerBlips[officer.citizenid]
+
             if not blip then
                 local name = ('police:%s'):format(officer.citizenid)
+
                 blip = AddBlipForCoord(officer.position[2], officer.position[1], officer.position[3])
                 officerBlips[officer.citizenid] = blip
+
                 SetBlipSprite(blip, 1)
                 SetBlipDisplay(blip, 3)
                 SetBlipColour(blip, 42)
@@ -205,6 +210,9 @@ RegisterNetEvent('mdt:updateOfficerPositions', function(data)
             end
         end
     end
+
+    if not hasLoadedUi then return end
+
     SendNUIMessage({
         action = 'updateOfficerPositions',
         data = data
@@ -319,6 +327,7 @@ serverNuiCallback('getWarrants')
 -- Profiles
 serverNuiCallback('getAllProfiles')
 serverNuiCallback('getProfile')
+serverNuiCallback('getProfiles')
 serverNuiCallback('saveProfileNotes')
 serverNuiCallback('isProfileWanted')
 serverNuiCallback('updateProfileImage')
